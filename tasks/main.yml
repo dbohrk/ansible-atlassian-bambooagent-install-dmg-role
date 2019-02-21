@@ -24,16 +24,16 @@
     file:
       path="/tmp/{{ dmg_to_install.file | basename }}.nointeractive.cdr"
       state=absent
-    when: dmg_to_install.remove_interactive
-    
+    when: (dmg_to_install.remove_interactive is defined) and dmg_to_install.remove_interactive
+
   - name: '[DMG] remove interactive'
     command: hdiutil convert "/tmp/{{ dmg_to_install.file | basename }}" -format UDTO -o "/tmp/{{ dmg_to_install.file  | basename }}.nointeractive.cdr"
-    when: dmg_to_install.remove_interactive
-    
+    when: (dmg_to_install.remove_interactive is defined) and dmg_to_install.remove_interactive
+
 
   - name: '[DMG] mount the installers'
-    shell: hdiutil attach "/tmp/{{ dmg_to_install.file | basename }}{{ dmg_to_install.remove_interactive | ternary('.nointeractive.cdr', '') }}" -mountpoint "/tmp/tmpmount_{{ dmg_to_install.file | basename | hash('sha1') }}"
-    with_items: 
+    shell: hdiutil attach "/tmp/{{ dmg_to_install.file | basename }}{{ ('remove_interactive' in dmg_to_install and dmg_to_install.remove_interactive) | ternary('.nointeractive.cdr', '') }}" -mountpoint "/tmp/tmpmount_{{ dmg_to_install.file | basename | hash('sha1') }}"
+    with_items:
       - dmg_to_install
 
   - name: '[DMG] get the mount point informations'
@@ -61,10 +61,8 @@
     - file:
         path="/tmp/{{ dmg_to_install.file | basename }}"
         state=absent
-      
+
     - file:
         path="/tmp/{{ dmg_to_install.file | basename }}.nointeractive.cdr"
         state=absent
-      when: dmg_to_install.remove_interactive
-
-  
+      when: (dmg_to_install.remove_interactive is defined) and dmg_to_install.remove_interactive
