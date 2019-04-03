@@ -22,13 +22,17 @@
 
   - name: '[DMG] remove interactive - checks'
     file:
-      path="/tmp/{{ dmg_to_install.file | basename }}.nointeractive.cdr"
-      state=absent
-    when: (dmg_to_install.remove_interactive is defined) and dmg_to_install.remove_interactive
+      path: "/tmp/{{ dmg_to_install.file | basename }}.nointeractive.cdr"
+      state: absent
+    when:
+      - dmg_to_install.remove_interactive is defined
+      - dmg_to_install.remove_interactive
 
   - name: '[DMG] remove interactive'
     command: hdiutil convert "/tmp/{{ dmg_to_install.file | basename }}" -format UDTO -o "/tmp/{{ dmg_to_install.file  | basename }}.nointeractive.cdr"
-    when: (dmg_to_install.remove_interactive is defined) and dmg_to_install.remove_interactive
+    when:
+      - dmg_to_install.remove_interactive is defined
+      - dmg_to_install.remove_interactive
 
 
   - name: '[DMG] mount the installers'
@@ -42,12 +46,12 @@
 
   - name: '[DMG] mount points'
     debug:
-      msg="{{ hdiutil_mounts.stdout_lines }}"
+      msg: "{{ hdiutil_mounts.stdout_lines }}"
 
   - name: '[DMG] run the installers'
     shell: "{{ dmg_to_install.install_cmd.replace('${mount}', '/tmp/tmpmount_' + (dmg_to_install.file | basename | hash('sha1'))) }}"
 
-  when: ansible_distribution=="MacOSX"
+  when: ansible_distribution == "MacOSX"
 
   rescue:
     - debug:
@@ -63,6 +67,8 @@
         state=absent
 
     - file:
-        path="/tmp/{{ dmg_to_install.file | basename }}.nointeractive.cdr"
-        state=absent
-      when: (dmg_to_install.remove_interactive is defined) and dmg_to_install.remove_interactive
+        path: "/tmp/{{ dmg_to_install.file | basename }}.nointeractive.cdr"
+        state: absent
+      when:
+       - dmg_to_install.remove_interactive is defined
+       - dmg_to_install.remove_interactive
